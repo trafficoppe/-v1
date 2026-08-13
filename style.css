@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #0A3D6B;
+  --secondary-color: #F8F9FA;
+  --text-color: #333333;
+  --border-color: #CED4DA;
+  --focus-color: #4D90FE;
+  --error-color: #DC3545;
+  --success-color: #28A745;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background-color: #E9ECEF;
+  color: var(--text-color);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 10px;
+}
+
+.container {
+  max-width: 100%;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 20px 15px;
+  text-align: center;
+}
+
+.logo-container { margin-bottom: 12px; display: flex; justify-content: center; align-items: center; }
+.logo-placeholder {
+  width: 70px; height: 70px; background-color: white; border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  color: var(--primary-color); font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.header h1 { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+.header p { font-size: 14px; opacity: 0.9; }
+.form-content { padding: 20px 15px; }
+.section-title { font-size: 16px; font-weight: 600; color: var(--primary-color); margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #E9ECEF; margin-top: 5px; }
+.form-group { margin-bottom: 20px; position: relative; }
+label { display: block; font-size: 15px; font-weight: 500; margin-bottom: 8px; color: #495057; }
+.required { color: var(--error-color); }
+
+input[type="text"], input[type="tel"], select {
+  width: 100%; padding: 14px 12px; font-size: 16px; border: 1px solid var(--border-color);
+  border-radius: 8px; background-color: #FAFAFA; transition: all 0.3s ease; font-family: 'Sarabun', sans-serif;
+}
+input[type="text"]:focus, input[type="tel"]:focus, select:focus { outline: none; border-color: var(--focus-color); background-color: #FFFFFF; box-shadow: 0 0 0 3px rgba(77, 144, 254, 0.2); }
+
+select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+.license-plate-group { display: flex; gap: 10px; }
+.license-plate-group input:first-child { flex: 3; }
+.license-plate-group input:last-child { flex: 2; }
+.help-text { font-size: 12px; color: #6C757D; margin-top: 5px; display: block; }
+
+button[type="submit"] {
+  width: 100%; background-color: var(--primary-color); color: white; border: none; border-radius: 8px;
+  padding: 16px; font-size: 18px; font-weight: 600; font-family: 'Sarabun', sans-serif; margin-top: 10px; cursor: pointer; transition: background-color 0.2s; -webkit-appearance: none;
+}
+button[type="submit"]:active { background-color: #072B4D; }
+button[type="submit"]:disabled { background-color: #A0B3C6; cursor: not-allowed; }
+
+#statusMessage { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: 500; display: none; }
+.status-success { background-color: #D4EDDA; color: #155724; border: 1px solid #C3E6CB; }
+.status-error { background-color: #F8D7DA; color: #721C24; border: 1px solid #F5C6CB; }
+
+.spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; vertical-align: middle; margin-right: 10px; display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.floating-group { position: relative; margin-bottom: 22px; }
+.floating-group input, .floating-group select { padding: 22px 12px 10px 12px; }
+.floating-group label { position: absolute; top: 16px; left: 12px; font-size: 16px; color: #6C757D; transition: all 0.2s ease; pointer-events: none; margin-bottom: 0; background: transparent; }
+.floating-group input:focus ~ label, .floating-group input:not(:placeholder-shown) ~ label, .floating-group select:focus ~ label, .floating-group select:not([value=""]) ~ label { top: 6px; font-size: 12px; color: var(--primary-color); font-weight: 600; }
+.floating-group input::placeholder { color: transparent; }
+.floating-group input:focus::placeholder { color: #ADB5BD; }
+/* คลาสสำหรับซ่อนหน้าต่าง */
+.hidden {
+  display: none !important;
+}
+
+/* ตกแต่งเมนูหลัก */
+.menu-content {
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-card {
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 25px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.menu-card:hover {
+  border-color: var(--focus-color);
+  box-shadow: 0 4px 12px rgba(77, 144, 254, 0.15);
+  transform: translateY(-2px);
+}
+
+.menu-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.menu-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.menu-card p {
+  font-size: 14px;
+  color: #6C757D;
+}
+
+/* ปุ่มกลับหน้าหลัก */
+.back-btn {
+  background-color: rgba(0,0,0,0.15);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background-color: rgba(0,0,0,0.3);
+}
+
+/* ตำแหน่ง header สำหรับปุ่มกลับ */
+.header {
+  position: relative;
+}
+
+.status-msg {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  display: none;
+}
