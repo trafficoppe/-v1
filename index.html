@@ -8,8 +8,37 @@
 </head>
 <body>
 
+  <!-- ================= หน้า PDPA (ยินยอมข้อมูล) ================= -->
+  <div id="pdpaSection" class="container">
+    <div class="pdpa-content">
+      <span class="pdpa-badge">PDPA</span>
+      <h2 class="pdpa-title">ข้อตกลงการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
+      <p class="pdpa-sub">กรุณาอ่านรายละเอียดก่อนดำเนินการ</p>
+
+      <div class="pdpa-box">
+        มหาวิทยาลัยมหิดล เก็บรวบรวมและใช้ข้อมูลส่วนบุคคลของท่าน เพื่อใช้ในการบริหารจัดการความปลอดภัย การควบคุมการเข้า-ออกพื้นที่ โดยมีมาตรการรักษาความมั่นคงปลอดภัยของข้อมูลตามมาตรฐาน PDPA ท่านมีสิทธิในฐานะเจ้าของข้อมูลส่วนบุคคลตามที่กฎหมายกำหนด และสามารถสอบถามรายละเอียดเพิ่มเติมได้ที่ งานจราจรและความปลอดภัย กองกายภาพและสิ่งแวดล้อม โทร 02-441-4400 กด 0 หรือ 1250-1255
+      </div>
+
+      <div class="form-group">
+        <label class="pdpa-label">ท่านรับทราบและตกลงยอมรับให้เก็บรวบรวมข้อมูลหรือไม่ <span class="required">*</span></label>
+        <div class="pdpa-options">
+          <label class="pdpa-option-btn">
+            <input type="radio" name="pdpaConsent" value="agree">
+            <span>รับทราบและตกลงยอมรับให้ข้อมูล</span>
+          </label>
+          <label class="pdpa-option-btn">
+            <input type="radio" name="pdpaConsent" value="disagree">
+            <span>ไม่ตกลงยอมรับให้ข้อมูล</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="btn-next" onclick="handlePdpaNext()">ถัดไป &rarr;</button>
+    </div>
+  </div>
+
   <!-- ================= หน้าหลัก (เมนูเลือก) ================= -->
-  <div id="mainMenu" class="container">
+  <div id="mainMenu" class="container hidden">
     <div class="header">
       <div class="logo-container">
         <div class="logo-placeholder">กอง<br>กายภาพ</div>
@@ -71,17 +100,23 @@
           </div>
         </div>
         <div class="floating-group">
-          <select id="brand" required onchange="this.setAttribute('value', this.value);">
-            <option value="" disabled selected hidden>กรุณาเลือกยี่ห้อรถ</option>
-            <option value="Toyota (โตโยต้า)">Toyota (โตโยต้า)</option>
-            <option value="Nissan (นิสสัน)">Nissan (นิสสัน)</option>
-            <option value="อื่นๆ">อื่นๆ</option>
-          </select>
+          <input type="text" id="brand" required placeholder="เช่น Toyota, Nissan">
           <label>ยี่ห้อรถ <span class="required">*</span></label>
         </div>
         <div class="floating-group">
           <input type="text" id="color" required placeholder="เช่น ขาว, เทา">
           <label>สีรถ <span class="required">*</span></label>
+        </div>
+
+        <div class="section-title">4. การเข้าร่วมประชุม</div>
+        <div class="form-group">
+          <label style="color: #6C757D; font-size: 14px; margin-left: 5px;">คุณจะมาเข้าร่วมการประชุมหรือไม่ <span class="required">*</span></label>
+          <div class="radio-group">
+            <input type="radio" id="vanMeetYes" name="vanMeeting" value="เข้าร่วม" required>
+            <label for="vanMeetYes" class="radio-btn">เข้าร่วม</label>
+            <input type="radio" id="vanMeetNo" name="vanMeeting" value="ไม่เข้าร่วม" required>
+            <label for="vanMeetNo" class="radio-btn">ไม่เข้าร่วม</label>
+          </div>
         </div>
         
         <button type="submit" id="vanSubmitBtn">
@@ -114,6 +149,14 @@
           <input type="text" id="riderName" required placeholder="นาย ข ไข่">
           <label>ชื่อ-นามสกุล (ผู้ขับขี่) <span class="required">*</span></label>
         </div>
+        <div class="floating-group">
+          <input type="text" id="winNumber" required placeholder="เช่น 1, 99">
+          <label>หมายเลขเสื้อวิน <span class="required">*</span></label>
+        </div>
+        <div class="floating-group">
+          <input type="text" id="winColor" required placeholder="เช่น ส้ม, ชมพู">
+          <label>สีของเสื้อวิน <span class="required">*</span></label>
+        </div>
         
         <div class="section-title" style="color: #E67E22; border-bottom-color: #FDEBD0;">3. ข้อมูลยานพาหนะ</div>
         <div class="floating-group">
@@ -127,6 +170,17 @@
         <div class="floating-group">
           <input type="text" id="motoLicensePlate" required placeholder="เช่น 1กข 1234 กทม.">
           <label>หมายเลขทะเบียนรถ (รวมจังหวัด) <span class="required">*</span></label>
+        </div>
+
+        <div class="section-title" style="color: #E67E22; border-bottom-color: #FDEBD0;">4. การเข้าร่วมประชุม</div>
+        <div class="form-group">
+          <label style="color: #6C757D; font-size: 14px; margin-left: 5px;">คุณจะมาเข้าร่วมการประชุมหรือไม่ <span class="required">*</span></label>
+          <div class="radio-group">
+            <input type="radio" id="motoMeetYes" name="motoMeeting" value="เข้าร่วม" required>
+            <label for="motoMeetYes" class="radio-btn">เข้าร่วม</label>
+            <input type="radio" id="motoMeetNo" name="motoMeeting" value="ไม่เข้าร่วม" required>
+            <label for="motoMeetNo" class="radio-btn">ไม่เข้าร่วม</label>
+          </div>
         </div>
         
         <button type="submit" id="motoSubmitBtn" style="background-color: #E67E22;">
