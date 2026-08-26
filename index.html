@@ -1,197 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <title>แบบสำรวจข้อมูลรถโดยสาร</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-  <!-- ================= หน้า PDPA (ยินยอมข้อมูล) ================= -->
-  <div id="pdpaSection" class="container">
-    <div class="pdpa-content">
-      <span class="pdpa-badge">PDPA</span>
-      <h2 class="pdpa-title">ข้อตกลงการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
-      <p class="pdpa-sub">กรุณาอ่านรายละเอียดก่อนดำเนินการ</p>
-
-      <div class="pdpa-box">
-        มหาวิทยาลัยมหิดล เก็บรวบรวมและใช้ข้อมูลส่วนบุคคลของท่าน เพื่อใช้ในการบริหารจัดการความปลอดภัย การควบคุมการเข้า-ออกพื้นที่ โดยมีมาตรการรักษาความมั่นคงปลอดภัยของข้อมูลตามมาตรฐาน PDPA ท่านมีสิทธิในฐานะเจ้าของข้อมูลส่วนบุคคลตามที่กฎหมายกำหนด และสามารถสอบถามรายละเอียดเพิ่มเติมได้ที่ งานจราจรและความปลอดภัย กองกายภาพและสิ่งแวดล้อม โทร 02-441-4400 กด 0 หรือ 1250-1255
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ระบบตรวจถังดับเพลิง</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .card-menu {
+        border-left: 6px solid #dc3545;
+        border-radius: 12px;
+        transition: transform 0.1s;
+      }
+      .card-menu:active {
+        transform: scale(0.97);
+        background-color: #f8f9fa;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-danger sticky-top shadow-sm">
+      <div class="container-fluid px-3">
+        <span class="navbar-brand mb-0 h1 fs-5" id="app-title">🔥 โหลดระบบ...</span>
       </div>
+    </nav>
 
-      <div class="form-group">
-        <label class="pdpa-label">ท่านรับทราบและตกลงยอมรับให้เก็บรวบรวมข้อมูลหรือไม่ <span class="required">*</span></label>
-        <div class="pdpa-options">
-          <label class="pdpa-option-btn">
-            <input type="radio" name="pdpaConsent" value="agree">
-            <span>รับทราบและตกลงยอมรับให้ข้อมูล</span>
-          </label>
-          <label class="pdpa-option-btn">
-            <input type="radio" name="pdpaConsent" value="disagree">
-            <span>ไม่ตกลงยอมรับให้ข้อมูล</span>
-          </label>
-        </div>
-      </div>
-
-      <button type="button" class="btn-next" onclick="handlePdpaNext()">ถัดไป &rarr;</button>
-    </div>
-  </div>
-
-  <!-- ================= หน้าหลัก (เมนูเลือก) ================= -->
-  <div id="mainMenu" class="container hidden">
-    <div class="header">
-      <div class="logo-container">
-        <div class="logo-placeholder">กอง<br>กายภาพ</div>
-      </div>
-      <h1>ระบบลงทะเบียนรถโดยสาร</h1>
-      <p>กรุณาเลือกประเภทรถที่ต้องการลงทะเบียน</p>
-    </div>
-    
-    <div class="menu-content">
-      <div class="menu-card" onclick="showSection('vanSection')">
-        <div class="menu-icon">🚐</div>
-        <h3>รถตู้หอพัก</h3>
-        <p>สำหรับรถตู้ให้บริการรับ-ส่งนักศึกษา</p>
-      </div>
-      
-      <div class="menu-card" onclick="showSection('motoSection')">
-        <div class="menu-icon">🛵</div>
-        <h3>วินจักรยานยนต์</h3>
-        <p>สำหรับรถจักรยานยนต์รับจ้าง</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= ฟอร์ม: รถตู้หอพัก ================= -->
-  <div id="vanSection" class="container hidden">
-    <div class="header">
-      <button class="back-btn" onclick="showSection('mainMenu')">◀ กลับ</button>
-      <h1>แบบเก็บข้อมูลรถตู้โดยสาร</h1>
-    </div>
-    
-    <div class="form-content">
-      <form id="vanForm">
-        <div class="section-title">1. ข้อมูลหอพักต้นสังกัด</div>
-        <div class="floating-group">
-          <input type="text" id="dormName" required placeholder="เช่น หอพักทรัพย์ไพศาล">
-          <label>ชื่อหอพัก / ต้นสังกัด <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="tel" id="dormPhone" required placeholder="08XXXXXXXX">
-          <label>เบอร์โทรหอพักต้นสังกัด <span class="required">*</span></label>
-        </div>
+    <div class="container mt-4 mb-5">
+      <h6 class="mb-3 text-secondary px-1">กรุณาเลือกหน่วยงาน/อาคารที่ต้องการตรวจ</h6>
+      <div class="d-flex flex-column gap-3 mb-4">
         
-        <div class="section-title">2. ข้อมูลพนักงานขับรถ</div>
-        <div class="floating-group">
-          <input type="text" id="driverName" required placeholder="นาย ก ไก่">
-          <label>ชื่อ-นามสกุล (ผู้ขับ) <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="tel" id="driverPhone" required placeholder="08XXXXXXXX">
-          <label>เบอร์โทรศัพท์ (ผู้ขับ) <span class="required">*</span></label>
-        </div>
-        
-        <div class="section-title">3. ข้อมูลยานพาหนะ</div>
-        <div class="form-group">
-          <label style="color: #6C757D; font-size: 14px; margin-left: 5px;">หมายเลขทะเบียนรถ <span class="required">*</span></label>
-          <div class="license-plate-group">
-            <input type="text" id="licensePlate" required placeholder="เช่น นข 1234">
-            <input type="text" id="province" required placeholder="จังหวัด">
+        <a href="list.html?dept=traffic" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">งานจราจรและความปลอดภัย</span>
           </div>
-        </div>
-        <div class="floating-group">
-          <input type="text" id="brand" required placeholder="เช่น Toyota, Nissan">
-          <label>ยี่ห้อรถ <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="text" id="color" required placeholder="เช่น ขาว, เทา">
-          <label>สีรถ <span class="required">*</span></label>
-        </div>
+        </a>
 
-        <div class="section-title">4. การเข้าร่วมประชุม</div>
-        <div class="form-group">
-          <label style="color: #6C757D; font-size: 14px; margin-left: 5px;">คุณจะมาเข้าร่วมการประชุมหรือไม่ <span class="required">*</span></label>
-          <div class="radio-group">
-            <input type="radio" id="vanMeetYes" name="vanMeeting" value="เข้าร่วม" required>
-            <label for="vanMeetYes" class="radio-btn">เข้าร่วม</label>
-            <input type="radio" id="vanMeetNo" name="vanMeeting" value="ไม่เข้าร่วม" required>
-            <label for="vanMeetNo" class="radio-btn">ไม่เข้าร่วม</label>
+        <a href="list.html?dept=salaya" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">อาคารศาลายา กองกายภาพฯ</span>
           </div>
-        </div>
-        
-        <button type="submit" id="vanSubmitBtn">
-          <span class="spinner" id="vanSpinner"></span>
-          <span id="vanBtnText">บันทึกข้อมูลรถตู้</span>
-        </button>
-      </form>
-      <div id="vanStatusMessage" class="status-msg"></div>
-    </div>
-  </div>
+        </a>
 
-  <!-- ================= ฟอร์ม: วินจักรยานยนต์ ================= -->
-  <div id="motoSection" class="container hidden">
-    <div class="header" style="background-color: #E67E22;">
-      <button class="back-btn" onclick="showSection('mainMenu')" style="background-color: rgba(255,255,255,0.2);">◀ กลับ</button>
-      <h1>แบบเก็บข้อมูลวินจักรยานยนต์</h1>
-    </div>
-    
-    <div class="form-content">
-      <form id="motoForm">
-        
-        <div class="section-title" style="color: #E67E22; border-bottom-color: #FDEBD0;">1. ข้อมูลจุดตั้งวิน</div>
-        <div class="floating-group">
-          <input type="text" id="winLocation" required placeholder="เช่น วินหน้าประตู 1, วินใต้ตึก A">
-          <label>วินตั้งอยู่ที่ไหน (ชื่อเรียกวิน) <span class="required">*</span></label>
-        </div>
-        
-        <div class="section-title" style="color: #E67E22; border-bottom-color: #FDEBD0;">2. ข้อมูลผู้ขับขี่</div>
-        <div class="floating-group">
-          <input type="text" id="riderName" required placeholder="นาย ข ไข่">
-          <label>ชื่อ-นามสกุล (ผู้ขับขี่) <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="text" id="winNumber" required placeholder="เช่น 1, 99">
-          <label>หมายเลขเสื้อวิน <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="text" id="winColor" required placeholder="เช่น ส้ม, ชมพู">
-          <label>สีของเสื้อวิน <span class="required">*</span></label>
-        </div>
-        
-        <div class="section-title" style="color: #E67E22; border-bottom-color: #FDEBD0;">3. ข้อมูลยานพาหนะ</div>
-        <div class="floating-group">
-          <input type="text" id="motoModel" required placeholder="เช่น Honda Wave 110i">
-          <label>ยี่ห้อ / รุ่นรถ <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="text" id="motoColor" required placeholder="เช่น แดง-ดำ">
-          <label>สีรถ <span class="required">*</span></label>
-        </div>
-        <div class="floating-group">
-          <input type="text" id="motoLicensePlate" required placeholder="เช่น 1กข 1234 กทม.">
-          <label>หมายเลขทะเบียนรถ (รวมจังหวัด) <span class="required">*</span></label>
-        </div>
-
-        <div class="section-title" style="color: #E67E22; border-bottom-color: #FDEBD0;">4. การเข้าร่วมประชุม</div>
-        <div class="form-group">
-          <label style="color: #6C757D; font-size: 14px; margin-left: 5px;">คุณจะมาเข้าร่วมการประชุมหรือไม่ <span class="required">*</span></label>
-          <div class="radio-group">
-            <input type="radio" id="motoMeetYes" name="motoMeeting" value="เข้าร่วม" required>
-            <label for="motoMeetYes" class="radio-btn">เข้าร่วม</label>
-            <input type="radio" id="motoMeetNo" name="motoMeeting" value="ไม่เข้าร่วม" required>
-            <label for="motoMeetNo" class="radio-btn">ไม่เข้าร่วม</label>
+        <a href="list.html?dept=mlc" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">ศูนย์การเรียนรู้มหิดล</span>
           </div>
-        </div>
-        
-        <button type="submit" id="motoSubmitBtn" style="background-color: #E67E22;">
-          <span class="spinner" id="motoSpinner"></span>
-          <span id="motoBtnText">บันทึกข้อมูลรถจักรยานยนต์</span>
-        </button>
-      </form>
-      <div id="motoStatusMessage" class="status-msg"></div>
-    </div>
-  </div>
+        </a>
 
-  <script src="script.js"></script>
-</body>
+        <a href="list.html?dept=sitthakarn" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">มหิดลสิทธาคาร</span>
+          </div>
+        </a>
+
+        <a href="list.html?dept=siriwittaya" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">อาคารสิริวิทยา</span>
+          </div>
+        </a>
+
+        <!-- เพิ่มใหม่: สถานีไฟฟ้าย่อยมหิดล -->
+        <a href="list.html?dept=substation" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">สถานีไฟฟ้าย่อยมหิดล</span>
+          </div>
+        </a>
+
+        <!-- เพิ่มใหม่: อาคารบำบัดน้ำเสีย -->
+        <a href="list.html?dept=wastewater" class="text-decoration-none">
+          <div class="card-menu p-3 shadow-sm bg-white d-flex align-items-center">
+            <span class="fw-bold text-dark fs-5">อาคารบำบัดน้ำเสีย</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+      if (typeof CONFIG !== "undefined") {
+        document.getElementById("app-title").innerText = `🔥 ${CONFIG.APP_NAME}`;
+      } else {
+        document.getElementById("app-title").innerText = `🔥 ระบบตรวจถังดับเพลิง`;
+      }
+    </script>
+  </body>
 </html>

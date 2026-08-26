@@ -1,108 +1,448 @@
-// ====== อย่าลืมนำ URL จาก Apps Script (ที่ Deploy ใหม่) มาใส่ตรงนี้นะครับ ======
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwOl7uq2rPfB67j7aPfmNJ9GOQdLRdE6TgO6kNi7zrpaJLzDefi0pM6RcK-_kqKx1-P/exec';
+// อ่านพารามิเตอร์ ?dept= จาก URL
+const urlParams = new URLSearchParams(window.location.search);
+const deptKey = urlParams.get('dept') || 'traffic';
 
-let userPdpaConsent = ''; // ตัวแปรเก็บค่าการยินยอม PDPA
+// ตารางแมปชื่อให้ตรงกับ Google Sheets
+const DEPT_MAP = {
+    'traffic': 'งานจราจรและความปลอดภัย',
+    'salaya': 'อาคารศาลายา กองกายภาพฯ',
+    'mlc': 'ศูนย์การเรียนรู้มหิดล',
+    'sitthakarn': 'มหิดลสิทธาคาร',
+    'siriwittaya': 'อาคารสิริวิทยา',
+    'substation': 'สถานีไฟฟ้าย่อยมหิดล',  // ต้องมีบรรทัดนี้
+    'wastewater': 'อาคารบำบัดน้ำเสีย'    // ต้องมีบรรทัดนี้
+};
 
-// ฟังก์ชันสลับหน้า
+const DEPT_NAME = DEPT_MAP[deptKey] || "งานจราจรและความปลอดภัย";
+const CACHE_KEY = "gasData_" + DEPT_NAME;
+
+// ... (โค้ดส่วนอื่นๆ ตามเดิม) ...
+
+document.addEventListener("DOMContentLoaded", () => {
+    // แสดงชื่อหน่วยงานบน Navbar
+    const titleDisplay = document.getElementById('dept-title-display');
+    if (titleDisplay) {
+        titleDisplay.innerHTML = DEPT_NAME; 
+    }
+
+    loadExtinguishers();
+    setupForm();
+});
+
+function goToAddDataPage() {
+    window.location.href = `add_data.html?dept=${deptKey}`;
+}
+
 function showSection(sectionId) {
-  document.getElementById('pdpaSection').classList.add('hidden');
-  document.getElementById('mainMenu').classList.add('hidden');
-  document.getElementById('vanSection').classList.add('hidden');
-  document.getElementById('motoSection').classList.add('hidden');
-  
-  document.getElementById(sectionId).classList.remove('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('page-list').style.display = sectionId === 'page-list' ? 'block' : 'none';
+    document.getElementById('page-form').style.display = sectionId === 'page-form' ? 'block' : 'none';
+    window.scrollTo(0, 0);
 }
 
-// ฟังก์ชันตรวจสอบ PDPA และเก็บค่าไว้
-function handlePdpaNext() {
-  const selected = document.querySelector('input[name="pdpaConsent"]:checked');
-  if (!selected) {
-    alert('กรุณาเลือกข้อตกลงยอมรับข้อมูลก่อนดำเนินการ');
-    return;
-  }
-  
-  // บันทึกค่าที่เลือกว่า 'ยินยอม' หรือ 'ไม่ยินยอม'
-  userPdpaConsent = selected.value === 'agree' ? 'ยินยอม' : 'ไม่ยินยอม';
-  
-  showSection('mainMenu');
+function clearCacheAndReload() {
+    sessionStorage.removeItem(CACHE_KEY);
+    loadExtinguishers();
 }
 
-// ป้องกันพิมพ์อักษรในช่องเบอร์โทร
-['dormPhone', 'driverPhone'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, ''));
-});
-
-// ================= จัดการฟอร์มรถตู้ =================
-document.getElementById('vanForm').addEventListener('submit', function(event) {
-  event.preventDefault(); 
-  submitData('van', {
-    dormName: document.getElementById('dormName').value,
-    dormPhone: document.getElementById('dormPhone').value,
-    driverName: document.getElementById('driverName').value,
-    driverPhone: document.getElementById('driverPhone').value,
-    licensePlate: document.getElementById('licensePlate').value,
-    province: document.getElementById('province').value,
-    brand: document.getElementById('brand').value,
-    color: document.getElementById('color').value,
-    meeting: document.querySelector('input[name="vanMeeting"]:checked').value
-  });
-});
-
-// ================= จัดการฟอร์มวินมอเตอร์ไซค์ =================
-document.getElementById('motoForm').addEventListener('submit', function(event) {
-  event.preventDefault(); 
-  submitData('moto', {
-    winLocation: document.getElementById('winLocation').value,
-    riderName: document.getElementById('riderName').value,
-    winNumber: document.getElementById('winNumber').value,
-    winColor: document.getElementById('winColor').value,
-    motoModel: document.getElementById('motoModel').value,
-    motoColor: document.getElementById('motoColor').value,
-    licensePlate: document.getElementById('motoLicensePlate').value,
-    meeting: document.querySelector('input[name="motoMeeting"]:checked').value
-  });
-});
-
-// ================= ฟังก์ชันหลักส่งข้อมูลไป Google Sheets (กดแล้วส่งเลยไม่ต้องรอ) =================
-function submitData(formType, data) {
-  const prefix = formType === 'van' ? 'van' : 'moto';
-  const btn = document.getElementById(prefix + 'SubmitBtn');
-  const spinner = document.getElementById(prefix + 'Spinner');
-  const btnText = document.getElementById(prefix + 'BtnText');
-  const statusMsg = document.getElementById(prefix + 'StatusMessage');
-  
-  data.formType = formType;
-  data.pdpa = userPdpaConsent; // แนบข้อมูล PDPA ไปด้วย
-  
-  // เปลี่ยนสถานะปุ่มตอนกด
-  btn.disabled = true;
-  spinner.style.display = 'inline-block';
-  btnText.innerText = 'กำลังส่งข้อมูล...';
-  statusMsg.style.display = 'none';
-
-  // 1. ยิงข้อมูลไปหา Apps Script โดยปล่อยให้มันทำงานอยู่เบื้องหลัง (ไม่ต้องรอรับค่า)
-  fetch(GOOGLE_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  }).catch(error => console.error('Error in background sync:', error));
-
-  // 2. ไม่ต้องรอให้โหลดเสร็จ ให้ UI แสดงว่าสำเร็จทันที (หน่วงเวลาเนียนๆ 0.5 วินาที)
-  setTimeout(() => {
-    btn.disabled = false;
-    spinner.style.display = 'none';
-    btnText.innerText = formType === 'van' ? 'บันทึกข้อมูลรถตู้' : 'บันทึกข้อมูลรถจักรยานยนต์';
+function openForm(extId, location, imgSrc, assetCode) {
+    document.getElementById('extinguisherId').value = extId;
+    document.getElementById('extinguisherLocation').value = location;
+    document.getElementById('inspectionDate').valueAsDate = new Date();
     
-    // โชว์กล่องสำเร็จ
-    statusMsg.className = 'status-msg status-success';
-    statusMsg.innerHTML = '✅ บันทึกข้อมูลเข้าสู่ระบบเรียบร้อยแล้ว';
-    statusMsg.style.display = 'block';
+    ['pin', 'gauge', 'hose', 'body', 'lever', 'label', 'installPoint', 'base'].forEach(item => {
+        const passRadio = document.getElementById(`${item}_pass`);
+        if(passRadio) passRadio.checked = true;
+        
+        const reasonInput = document.getElementById(`${item}_reason`);
+        if (reasonInput) {
+            reasonInput.value = '';
+            reasonInput.classList.add('d-none');
+        }
+    });
+    document.getElementById('remark').value = '';
+    showSection('page-form');
+}
+
+function toggleReason(item) {
+    const isFail = document.getElementById(`${item}_fail`).checked;
+    const reasonInput = document.getElementById(`${item}_reason`);
+    if (reasonInput) {
+        if (isFail) {
+            reasonInput.classList.remove('d-none');
+        } else {
+            reasonInput.classList.add('d-none');
+            reasonInput.value = '';
+        }
+    }
+}
+
+async function loadExtinguishers() {
+    const container = document.getElementById('extinguisher-container');
+    const countBadge = document.getElementById('ext-count');
+
+    const cachedData = sessionStorage.getItem(CACHE_KEY);
+    let hasCache = false;
+
+    if (cachedData) {
+        try {
+            const parsed = JSON.parse(cachedData);
+            renderList(parsed, container, countBadge);
+            hasCache = true;
+        } catch (e) {
+            console.error("Cache parsing error:", e);
+        }
+    }
+
+    if (!hasCache) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                <p class="text-muted mt-3 fw-normal" style="font-size: 12px;">กำลังดึงข้อมูลล่าสุด...</p>
+            </div>`;
+        countBadge.innerText = '...';
+    }
+
+    try {
+        const response = await fetch(CONFIG.GAS_URL);
+        const allData = await response.json();
+        
+        if (allData.error) throw new Error(allData.error);
+
+        const filtered = allData.filter(item => item['หน่วยงาน'] === DEPT_NAME);
+
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(filtered));
+        renderList(filtered, container, countBadge);
+
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        if (!hasCache) {
+            container.innerHTML = `
+                <div class="text-center text-danger py-4 p-4 bg-white rounded-3 border border-danger shadow-sm">
+                    <h6 class="fw-normal" style="font-size: 13px;">ไม่สามารถดึงข้อมูลได้</h6>
+                    <p class="mb-0" style="font-size: 11px;">โปรดตรวจสอบการตั้งค่า Deploy หรืออินเทอร์เน็ต</p>
+                    <button onclick="clearCacheAndReload()" class="btn btn-outline-danger btn-sm mt-3 fw-normal" style="font-size: 11px;">ลองใหม่อีกครั้ง</button>
+                </div>`;
+            countBadge.innerText = `Error`;
+        }
+    }
+}
+
+function renderList(data, container, countBadge) {
+    if (!data || data.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted py-5 bg-white rounded-3 border shadow-sm" style="font-size: 12px;">ยังไม่มีข้อมูลถังดับเพลิงในระบบ</div>`;
+        countBadge.innerText = `0 ถัง`;
+        return;
+    }
+
+    let inspectedLog = JSON.parse(localStorage.getItem('inspectedLog_' + DEPT_NAME) || '{}');
+    const now = new Date().getTime();
+
+    data.sort((a, b) => {
+        const aId = a['หมายเลขครุภัณฑ์'] || a['เลขที่ถัง'];
+        const bId = b['หมายเลขครุภัณฑ์'] || b['เลขที่ถัง'];
+        const aInspected = inspectedLog[aId] && (now - inspectedLog[aId].timestamp < 10 * 60 * 1000) ? 1 : 0;
+        const bInspected = inspectedLog[bId] && (now - inspectedLog[bId].timestamp < 10 * 60 * 1000) ? 1 : 0;
+        return aInspected - bInspected;
+    });
+
+    container.innerHTML = '';
+    countBadge.innerText = `${data.length} ถัง`;
+
+    data.forEach(ext => {
+        const assetCode = ext['หมายเลขครุภัณฑ์'] || ext['เลขที่ถัง'];
+        let borderClass = "border-start border-4"; 
+        let cardStyle = "background-color: #ffffff; border-left-color: #002454 !important;"; 
+        let statusBadge = "";
+
+        if (inspectedLog[assetCode]) {
+            const timeDiff = now - inspectedLog[assetCode].timestamp;
+            if (timeDiff < 10 * 60 * 1000) { 
+                if (inspectedLog[assetCode].status === 'pass') {
+                    cardStyle = "background-color: #d1e7dd !important; border-left-color: #198754 !important;";
+                    statusBadge = `<span class="badge bg-success ms-1 px-2 py-1 fw-normal rounded-pill" style="font-size: 10px;">ตรวจแล้ว</span>`;
+                } else {
+                    cardStyle = "background-color: #f8d7da !important; border-left-color: #dc3545 !important;";
+                    statusBadge = `<span class="badge ms-1 px-2 py-1 fw-normal rounded-pill" style="background-color: #dc3545; color: white; font-size: 10px;">ชำรุด</span>`;
+                }
+            } else {
+                delete inspectedLog[assetCode];
+            }
+        }
+
+        let img1Src = (assetCode && assetCode !== '-') ? `images/${assetCode}_1.jpg` : `images/default.jpg`;
+        let img2Src = (assetCode && assetCode !== '-') ? `images/${assetCode}_2.jpg` : `images/default.jpg`;
+
+        // ==========================================
+        // ปรับแก้: รูปภาพขนาด 80x80px พอดีกับข้อความและการ์ด
+        // ==========================================
+        let carouselId = "slide-" + (assetCode || Math.random().toString(36).substr(2, 5));
+        let imageBlockHTML = `
+          <div id="${carouselId}" class="carousel slide me-2 flex-shrink-0" data-bs-ride="carousel" data-bs-interval="2500" 
+               style="width: 80px; height: 80px; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
+            <div class="carousel-inner" style="height: 100%;">
+              <div class="carousel-item active" style="height: 100%; transition: transform 0.8s ease-in-out;">
+                <img src="${img1Src}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null; this.src='images/default.jpg';">
+              </div>
+              <div class="carousel-item" style="height: 100%; transition: transform 0.8s ease-in-out;">
+                <img src="${img2Src}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null; this.src='images/default.jpg';">
+              </div>
+            </div>
+          </div>
+        `;
+
+        // ==========================================
+        // ปรับแก้: ลดขนาดตัวอักษรเป็น 11px และย่อขนาดปุ่มให้พอดี
+        // ==========================================
+        container.innerHTML += `
+            <div class="card mb-2 shadow-sm border-0 ${borderClass} cursor-pointer" 
+                 style="${cardStyle}"
+                 onclick="openForm('${assetCode}', '${ext['สถานที่ติดตั้ง']}', '${img1Src}', '${assetCode}')">
+                
+                <div class="card-body p-2 d-flex align-items-center">
+                    
+                    ${imageBlockHTML}
+                    
+                    <div class="flex-grow-1 d-flex flex-column justify-content-between" style="min-height: 80px;">
+                        
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <div class="text-start mb-0" style="line-height: 1.35;">
+                                <div style="font-size: 11px; color: #000; font-weight: normal;">ชนิด ${ext['ชนิด']}</div>
+                                <div style="font-size: 11px; color: #000; font-weight: normal;">ขนาด ${ext['ขนาด']}</div>
+                                <div style="font-size: 11px; color: #000; font-weight: normal;">ถังเลขที่ ${ext['เลขที่ถัง'] || '-'}</div>
+                            </div>
+                            <div class="flex-shrink-0 ms-1">
+                                ${statusBadge}
+                            </div>
+                        </div>
+                        
+                        <div class="text-end d-flex justify-content-end gap-1.5 mt-auto pt-1">
+                            <button class="btn btn-sm btn-warning rounded-pill px-2.5 py-1" style="color: #000; font-size: 11px; font-weight: normal; line-height: 1.1;"
+                                onclick="event.stopPropagation(); window.location.href='refill_form.html?dept=${deptKey}&assetCode=${assetCode}&extId=${ext['เลขที่ถัง'] || ''}';">
+                                เติมน้ำยา
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" style="font-size: 11px; font-weight: normal; color: #000; border-color: #ced4da; line-height: 1.1;"
+                                    onclick="event.stopPropagation(); showHistoryModal('${assetCode}')">
+                                ประวัติการตรวจ
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    localStorage.setItem('inspectedLog_' + DEPT_NAME, JSON.stringify(inspectedLog));
+
+    const carousels = document.querySelectorAll('.carousel');
+    carousels.forEach(carousel => {
+        new bootstrap.Carousel(carousel, {
+            interval: 2500,
+            ride: 'carousel'
+        });
+    });
+}
+
+function setupForm() {
+    const form = document.getElementById('inspection-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> กำลังบันทึกข้อมูล...`;
+
+        const assetCode = document.getElementById('extinguisherId').value;
+        
+        const getVal = (name) => {
+            const el = document.querySelector(`input[name="${name}"]:checked`);
+            return el ? el.value : 'pass';
+        };
+        const getReason = (name) => document.getElementById(`${name}_reason`) ? document.getElementById(`${name}_reason`).value : '';
+
+        const body = getVal('body');
+        const gauge = getVal('gauge');
+        const hose = getVal('hose');
+        const pin = getVal('pin');
+        const lever = getVal('lever');
+        const label = getVal('label');
+        const installPoint = getVal('installPoint');
+        const base = getVal('base');
+
+        const isAllPass = (body === 'pass' && gauge === 'pass' && hose === 'pass' && pin === 'pass' && 
+                           lever === 'pass' && label === 'pass' && installPoint === 'pass' && base === 'pass');
+
+        const formatCheck = (status, reason) => status === 'pass' ? 'ปกติ' : 'ชำรุด: ' + reason;
+
+        const payload = {
+            action: "inspection",
+            extinguisherId: assetCode,
+            assetCode: assetCode,
+            inspectorName: document.getElementById('inspectorName').value,
+            checkBody: formatCheck(body, getReason('body')),
+            checkPressure: formatCheck(gauge, getReason('gauge')),
+            checkHose: formatCheck(hose, getReason('hose')),
+            checkPin: formatCheck(pin, getReason('pin')),
+            checkLever: formatCheck(lever, getReason('lever')),
+            checkLabel: formatCheck(label, getReason('label')),
+            checkInstall: formatCheck(installPoint, getReason('installPoint')),
+            checkBase: formatCheck(base, getReason('base')),
+            finalStatus: isAllPass ? 'ปกติ' : 'ชำรุด',
+            note: document.getElementById('remark').value,
+            department: DEPT_NAME
+        };
+
+        try {
+            await fetch(CONFIG.GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            let inspectedLog = JSON.parse(localStorage.getItem('inspectedLog_' + DEPT_NAME) || '{}');
+            inspectedLog[assetCode] = {
+                timestamp: new Date().getTime(),
+                status: isAllPass ? 'pass' : 'fail'
+            };
+            localStorage.setItem('inspectedLog_' + DEPT_NAME, JSON.stringify(inspectedLog));
+
+            sessionStorage.removeItem(CACHE_KEY);
+
+            alert('บันทึกการตรวจเรียบร้อยแล้ว');
+            showSection('page-list');
+            loadExtinguishers(); 
+
+        } catch (err) {
+            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            console.error(err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `บันทึกข้อมูลการตรวจ`;
+        }
+    });
+}
+
+async function showHistoryModal(assetCode) {
+    document.getElementById('historyAssetCode').innerText = assetCode;
+    const historyListContainer = document.getElementById('historyListContainer');
     
-    // รีเซ็ตฟอร์ม
-    document.getElementById(prefix + 'Form').reset();
-    
-    // ซ่อนกล่องข้อความสำเร็จใน 5 วินาที
-    setTimeout(() => { statusMsg.style.display = 'none'; }, 5000);
-  }, 500);
+    historyListContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 fw-normal small">กำลังโหลดประวัติ...</p></div>';
+
+    const myModal = new bootstrap.Modal(document.getElementById('historyModal'));
+    myModal.show();
+
+    try {
+        const response = await fetch(CONFIG.GAS_URL + "?action=get_log&assetCode=" + assetCode);
+        const logs = await response.json();
+
+        let tableHTML = `
+            <div class="table-responsive border rounded">
+                <table class="table table-bordered text-center align-middle mb-0" 
+                       style="font-size: 11px; white-space: nowrap; width: 100%; color: #000;">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="font-weight: normal; padding: 6px 4px;">ด/ป</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">ถัง</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">เกจ์</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">สาย</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">สลัก</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">บีบ</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">ป้าย</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">จุด</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">ฐาน</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">สถานะ</th>
+                            <th style="font-weight: normal; padding: 6px 4px;">ผู้ตรวจ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        const currentYear = new Date().getFullYear() + 543;
+        const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+        months.forEach((month, index) => {
+            const logsForMonth = logs.filter(log => {
+                if (!log.timestamp) return false;
+                const logParts = log.timestamp.split('/'); 
+                if(logParts.length >= 2) {
+                   const logMonth = parseInt(logParts[1], 10);
+                   return logMonth === (index + 1);
+                }
+                return false;
+            });
+
+            const logEntry = logsForMonth.length > 0 ? logsForMonth[logsForMonth.length - 1] : undefined;
+
+            if (logEntry) {
+                 const isPass = logEntry.finalStatus === "ปกติ";
+                 const tick = `<span class="text-success" style="font-weight: normal; font-size: 11px;">✓</span>`;
+                 const cross = `<span class="text-danger" style="font-weight: normal; font-size: 11px;">✗</span>`;
+                 const rowClass = isPass ? 'table-success' : 'table-danger';
+
+                 tableHTML += `
+                    <tr class="${rowClass}">
+                        <td style="font-weight: normal; padding: 6px 4px;">${month} ${currentYear.toString().substring(2)}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkBody || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkPressure || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkHose || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkPin || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkLever || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkLabel || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkInstall || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">${(logEntry.checkBase || "").includes("ปกติ") ? tick : cross}</td>
+                        <td style="padding: 6px 4px;">
+                            <span class="badge ${isPass ? 'bg-success' : 'bg-danger'} shadow-sm px-2 py-1" style="font-size: 10px; font-weight: normal;">${isPass ? 'ใช้งานได้' : 'ชำรุด'}</span>
+                        </td>
+                        <td class="text-truncate" style="max-width: 70px; font-weight: normal; padding: 6px 4px;">${logEntry.inspectorName}</td>
+                    </tr>
+                `;
+            } else {
+                 tableHTML += `
+                    <tr>
+                        <td style="font-weight: normal; padding: 6px 4px;">${month} ${currentYear.toString().substring(2)}</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                        <td style="color: #6c757d; padding: 6px 4px;">-</td>
+                    </tr>
+                `;
+            }
+        });
+
+        tableHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        historyListContainer.innerHTML = tableHTML;
+
+    } catch (error) {
+        console.error("Error loading history:", error);
+        historyListContainer.innerHTML = '<div class="text-center text-danger p-4" style="font-weight: normal;">เกิดข้อผิดพลาดในการดึงข้อมูล</div>';
+    }
+}
+
+function filterExtinguisher() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const items = document.querySelectorAll("#extinguisher-container .card"); 
+
+    items.forEach(function(item) {
+        const itemText = item.textContent.toLowerCase();
+        if (itemText.includes(query)) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    });
 }

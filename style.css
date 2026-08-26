@@ -1,124 +1,149 @@
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&display=swap");
 
-:root {
-  --primary-color: #0A3D6B;
-  --secondary-color: #F8F9FA;
-  --text-color: #333333;
-  --border-color: #CED4DA;
-  --focus-color: #4D90FE;
-  --error-color: #DC3545;
-  --success-color: #28A745;
+/* บังคับฟอนต์ ความบาง และขนาด ให้เหมือนกันทั้งหน้าเว็บ */
+* {
+  font-family: "Anuphan", sans-serif !important;
+  font-weight: 300 !important; 
+  font-size: 16px !important; 
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Sarabun', sans-serif;
-  background-color: #E9ECEF;
-  color: var(--text-color);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  padding: 10px;
+  background-color: #f4f6f9;
+  font-family: "Sarabun", sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
-
-.container {
-  max-width: 100%;
-  background: #FFFFFF;
+.page-section {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+.active-section {
+  display: block;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.card-dept {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  overflow: hidden;
-  margin: 0 auto;
+  transition: background 0.2s;
+}
+.card-dept:active {
+  background: #ffe5e5 !important;
+}
+.extinguisher-item {
+  cursor: pointer;
+  border-left: 5px solid #dc3545;
+  border-radius: 10px;
+  background: #ffffff;
+  transition: transform 0.1s;
+}
+.extinguisher-item:active {
+  transform: scale(0.98);
+  background: #f8f9fa;
+}
+.check-list-bg {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+.custom-switch .form-check-input {
+  width: 3em;
+  height: 1.5em;
+  cursor: pointer;
+}
+.custom-switch .form-check-label {
+  line-height: 1.5em;
+  font-size: 1.05rem;
+  padding-top: 2px;
+  cursor: pointer;
+}
+#finalStatus.text-danger {
+  color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  background-color: rgba(220, 53, 69, 0.1) !important;
 }
 
-.header {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 20px 15px;
-  text-align: center;
-  position: relative;
+/* สำหรับแสดงรูปถัง */
+.ext-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+.ext-full-img {
+  width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
-.logo-container { margin-bottom: 12px; display: flex; justify-content: center; align-items: center; }
-.logo-placeholder {
-  width: 70px; height: 70px; background-color: white; border-radius: 50%;
-  display: flex; justify-content: center; align-items: center;
-  color: var(--primary-color); font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+/* บังคับขนาดกรอบรูปภาพให้เป็น 80x80px เท่ากันทุกการ์ด */
+.auto-slider-container {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+    height: 80px !important;     
+    min-height: 80px !important;
+    max-height: 80px !important;
+    overflow: hidden !important; 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    flex-shrink: 0 !important;
+    position: relative;
+    background-color: #f8f9fa; 
 }
 
-.header h1 { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
-.header p { font-size: 14px; opacity: 0.9; }
-.form-content { padding: 20px 15px; }
-.section-title { font-size: 16px; font-weight: 600; color: var(--primary-color); margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #E9ECEF; margin-top: 5px; }
-.form-group { margin-bottom: 20px; position: relative; }
-label { display: block; font-size: 15px; font-weight: 500; margin-bottom: 8px; color: #495057; }
-.required { color: var(--error-color); }
-
-input[type="text"], input[type="tel"], select {
-  width: 100%; padding: 14px 12px; font-size: 16px; border: 1px solid var(--border-color);
-  border-radius: 8px; background-color: #FAFAFA; transition: all 0.3s ease; font-family: 'Sarabun', sans-serif;
+/* ปรับความกว้างรางสไลด์เป็น 200% (สำหรับ 2 รูป) */
+.auto-slider-track {
+    display: flex;
+    flex-wrap: nowrap !important;
+    width: 200% !important; 
+    height: 100% !important;
+    animation: slideTwo 6s infinite ease-in-out; 
 }
-input[type="text"]:focus, input[type="tel"]:focus, select:focus { outline: none; border-color: var(--focus-color); background-color: #FFFFFF; box-shadow: 0 0 0 3px rgba(77, 144, 254, 0.2); }
 
-select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
-.license-plate-group { display: flex; gap: 10px; }
-.license-plate-group input:first-child { flex: 3; }
-.license-plate-group input:last-child { flex: 2; }
-.help-text { font-size: 12px; color: #6C757D; margin-top: 5px; display: block; }
-
-button[type="submit"] {
-  width: 100%; background-color: var(--primary-color); color: white; border: none; border-radius: 8px;
-  padding: 16px; font-size: 18px; font-weight: 600; font-family: 'Sarabun', sans-serif; margin-top: 10px; cursor: pointer; transition: background-color 0.2s; -webkit-appearance: none;
+/* บังคับรูปละ 50% ของความกว้างราง */
+.auto-slider-track img {
+    width: 50% !important; 
+    height: 100% !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+    display: block !important;
 }
-button[type="submit"]:active { background-color: #072B4D; }
-button[type="submit"]:disabled { background-color: #A0B3C6; cursor: not-allowed; }
 
-#statusMessage { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: 500; display: none; }
-.status-success { background-color: #D4EDDA; color: #155724; border: 1px solid #C3E6CB; }
-.status-error { background-color: #F8F9FA; color: #721C24; border: 1px solid #F5C6CB; }
+/* แอนิเมชันสลับสไลด์ไป-มาระหว่างรูปที่ 1 และ 2 */
+@keyframes slideTwo {
+    0%, 45% { transform: translateX(0); }       /* โชว์รูปที่ 1 */
+    50%, 95% { transform: translateX(-50%); }   /* เลื่อนไปรูปที่ 2 */
+    100% { transform: translateX(0); }          /* วนกลับมารูปที่ 1 */
+}
 
-.spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; vertical-align: middle; margin-right: 10px; display: none; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* 2. เปลี่ยนธีมสีแดง (Danger) ของ Bootstrap เป็นสีน้ำเงินมหิดล (#002454) */
+.bg-danger {
+  background-color: #002454 !important;
+}
 
-.floating-group { position: relative; margin-bottom: 22px; }
-.floating-group input, .floating-group select { padding: 22px 12px 10px 12px; }
-.floating-group label { position: absolute; top: 16px; left: 12px; font-size: 16px; color: #6C757D; transition: all 0.2s ease; pointer-events: none; margin-bottom: 0; background: transparent; }
-.floating-group input:focus ~ label, .floating-group input:not(:placeholder-shown) ~ label, .floating-group select:focus ~ label, .floating-group select:not([value=""]) ~ label { top: 6px; font-size: 12px; color: var(--primary-color); font-weight: 600; }
-.floating-group input::placeholder { color: transparent; }
-.floating-group input:focus::placeholder { color: #ADB5BD; }
+.btn-danger {
+  background-color: #002454 !important;
+  border-color: #002454 !important;
+  color: #ffffff !important;
+}
 
-.hidden { display: none !important; }
+.btn-danger:hover,
+.btn-danger:focus,
+.btn-danger:active {
+  background-color: #001738 !important;
+  border-color: #001738 !important;
+}
 
-/* เมนูหลัก */
-.menu-content { padding: 30px 20px; display: flex; flex-direction: column; gap: 15px; }
-.menu-card { background: white; border: 2px solid var(--border-color); border-radius: 12px; padding: 25px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
-.menu-card:hover { border-color: var(--focus-color); box-shadow: 0 4px 12px rgba(77, 144, 254, 0.15); transform: translateY(-2px); }
-.menu-icon { font-size: 40px; margin-bottom: 10px; }
-.menu-card h3 { color: var(--primary-color); margin-bottom: 5px; }
-.menu-card p { font-size: 14px; color: #6C757D; }
-
-/* ปุ่มกลับ */
-.back-btn { background-color: rgba(0,0,0,0.15); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-family: 'Sarabun', sans-serif; font-size: 13px; cursor: pointer; position: absolute; top: 15px; left: 15px; transition: background 0.2s; }
-.back-btn:hover { background-color: rgba(0,0,0,0.3); }
-
-.status-msg { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: 500; display: none; }
-
-/* ตัวเลือกเข้าร่วมประชุม */
-.radio-group { display: flex; gap: 10px; margin-top: 5px; margin-bottom: 20px; }
-.radio-group input[type="radio"] { display: none; }
-.radio-btn { flex: 1; text-align: center; padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; background: #FAFAFA; cursor: pointer; color: var(--text-color); transition: all 0.3s ease; font-weight: 500; }
-.radio-group input[type="radio"]:checked + .radio-btn { background-color: var(--focus-color); color: white; border-color: var(--focus-color); }
-#motoForm .radio-group input[type="radio"]:checked + .radio-btn { background-color: #E67E22; border-color: #E67E22; }
-
-/* ================= สไตล์สำหรับหน้า PDPA ================= */
-.pdpa-content { padding: 25px 20px; }
-.pdpa-badge { display: inline-block; background-color: #E8EEF9; color: #1A365D; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; margin-bottom: 12px; }
-.pdpa-title { font-size: 18px; font-weight: 700; color: #1A365D; margin-bottom: 4px; }
-.pdpa-sub { font-size: 13px; color: #6C757D; margin-bottom: 16px; }
-.pdpa-box { background-color: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 8px; padding: 16px; font-size: 14px; color: #333333; line-height: 1.6; margin-bottom: 20px; }
-.pdpa-label { font-size: 14px; font-weight: 600; color: #333333; margin-bottom: 12px; display: block; }
-.pdpa-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
-.pdpa-option-btn { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #FFFFFF; cursor: pointer; transition: all 0.2s ease; font-size: 15px; color: #333333; }
-.pdpa-option-btn:hover { background-color: #F8F9FA; }
-.pdpa-option-btn input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary-color); cursor: pointer; }
-.btn-next { width: 100%; background-color: #1A2B88; color: white; border: none; border-radius: 8px; padding: 14px; font-size: 16px; font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer; transition: background-color 0.2s; }
-.btn-next:hover { background-color: #121E63; }
+.text-danger {
+  color: #002454 !important;
+}
