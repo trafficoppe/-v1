@@ -4,7 +4,7 @@
 
 const CONFIG = {
     // 1. ลิงก์ Web App จาก Google Apps Script (เปลี่ยนที่นี่ที่เดียว)
-    GAS_URL: 'https://script.google.com/macros/s/AKfycby5_PGP24yaqZUXk8Ve3-Ahn9DG1kW0RjzLYVI4ZDnzCpc2ZmOywq713KhD6sDmtysy/exec',
+    GAS_URL: 'https://script.google.com/macros/s/AKfycbyN92CTq3Qua6SYie4MbWGtRqhxcLoInEooEJutz7tdlksNOShO_VC1wv5i2gv-njw/exec',
     
     // 2. ลิงก์สำหรับโหลดไฟล์ APK (ถ้ามี)
     APK_LINK: 'https://example.com/download/fire-app.apk',

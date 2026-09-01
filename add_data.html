@@ -85,14 +85,18 @@
 
     <script src="config.js"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
+       const urlParams = new URLSearchParams(window.location.search);
         const deptKey = urlParams.get('dept') || 'traffic';
+        
+        // อัปเดต DEPT_MAP โดยเพิ่ม substation และ wastewater
         const DEPT_MAP = {
             'traffic': 'งานจราจรและความปลอดภัย',
             'salaya': 'อาคารศาลายา กองกายภาพฯ',
             'mlc': 'ศูนย์การเรียนรู้มหิดล',
             'sitthakarn': 'มหิดลสิทธาคาร',
-            'siriwittaya': 'อาคารสิริวิทยา'
+            'siriwittaya': 'อาคารสิริวิทยา',
+            'substation': 'สถานีไฟฟ้าย่อยมหิดล',
+            'wastewater': 'อาคารบำบัดน้ำเสีย'
         };
         const DEPT_NAME = DEPT_MAP[deptKey] || 'งานจราจรและความปลอดภัย';
 

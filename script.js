@@ -1,19 +1,19 @@
-// อ่านพารามิเตอร์ ?dept= จาก URL
 const urlParams = new URLSearchParams(window.location.search);
-const deptKey = urlParams.get('dept') || 'traffic';
-
-// ตารางแมปชื่อให้ตรงกับ Google Sheets
-const DEPT_MAP = {
-    'traffic': 'งานจราจรและความปลอดภัย',
-    'salaya': 'อาคารศาลายา กองกายภาพฯ',
-    'mlc': 'ศูนย์การเรียนรู้มหิดล',
-    'sitthakarn': 'มหิดลสิทธาคาร',
-    'siriwittaya': 'อาคารสิริวิทยา',
-    'substation': 'สถานีไฟฟ้าย่อยมหิดล',  // ต้องมีบรรทัดนี้
-    'wastewater': 'อาคารบำบัดน้ำเสีย'    // ต้องมีบรรทัดนี้
-};
-
-const DEPT_NAME = DEPT_MAP[deptKey] || "งานจราจรและความปลอดภัย";
+        const deptKey = urlParams.get('dept') || 'traffic';
+        
+        // --- เปลี่ยนโค้ดตรงนี้ ---
+        const DEPT_MAP = {
+            'traffic': 'งานจราจรและความปลอดภัย',
+            'salaya': 'อาคารศาลายา กองกายภาพฯ',
+            'mlc': 'ศูนย์การเรียนรู้มหิดล',
+            'sitthakarn': 'มหิดลสิทธาคาร',
+            'siriwittaya': 'อาคารสิริวิทยา',   
+            'substation': 'สถานีไฟฟ้าย่อยมหิดล',
+            'wastewater': 'อาคารบำบัดน้ำเสีย'
+        };
+        // -----------------------
+        
+        const DEPT_NAME = DEPT_MAP[deptKey] || 'งานจราจรและความปลอดภัย';
 const CACHE_KEY = "gasData_" + DEPT_NAME;
 
 // ... (โค้ดส่วนอื่นๆ ตามเดิม) ...

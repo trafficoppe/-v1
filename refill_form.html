@@ -70,6 +70,17 @@
         const assetCode = urlParams.get('assetCode');
         const extId = urlParams.get('extId');
 
+        const DEPT_MAP = {
+            'traffic': 'งานจราจรและความปลอดภัย',
+            'salaya': 'อาคารศาลายา กองกายภาพฯ',
+            'mlc': 'ศูนย์การเรียนรู้มหิดล',
+            'sitthakarn': 'มหิดลสิทธาคาร',
+            'siriwittaya': 'อาคารสิริวิทยา',
+            'substation': 'สถานีไฟฟ้าย่อยมหิดล',
+            'wastewater': 'อาคารบำบัดน้ำเสีย'
+        };
+        const DEPT_NAME = DEPT_MAP[deptKey] || 'งานจราจรและความปลอดภัย';
+
         document.getElementById('btn-back').onclick = () => { window.location.href = `list.html?dept=${deptKey}`; };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -102,12 +113,23 @@
                 const poData = await fileToBase64(document.getElementById('poDoc').files[0]);
 
                 const payload = {
-                    action: "refill",
-                    assetCode: document.getElementById('assetCode').value, extId: document.getElementById('extId').value,
-                    refillDate: document.getElementById('refillDate').value, nextDueDate: document.getElementById('nextDueDate').value,
-                    chemicalType: document.getElementById('chemicalType').value, weightBefore: document.getElementById('weightBefore').value,
-                    weightAfter: document.getElementById('weightAfter').value, refillBy: document.getElementById('refillBy').value,
-                    note: document.getElementById('note').value, hydroDoc: hydroData, poDoc: poData
+                    action: "refill_chemical",
+                    department: DEPT_NAME,
+                    assetCode: document.getElementById('assetCode').value, 
+                    extId: document.getElementById('extId').value,
+                    refillDate: document.getElementById('refillDate').value, 
+                    nextDueDate: document.getElementById('nextDueDate').value,
+                    chemicalType: document.getElementById('chemicalType').value, 
+                    weightBefore: document.getElementById('weightBefore').value,
+                    weightAfter: document.getElementById('weightAfter').value, 
+                    refillBy: document.getElementById('refillBy').value,
+                    note: document.getElementById('note').value, 
+                    hydroBase64: hydroData ? hydroData.base64 : "",
+                    hydroName: hydroData ? hydroData.name : "",
+                    hydroMime: hydroData ? hydroData.type : "",
+                    poBase64: poData ? poData.base64 : "",
+                    poName: poData ? poData.name : "",
+                    poMime: poData ? poData.type : ""
                 };
 
                 const response = await fetch(CONFIG.GAS_URL, {
