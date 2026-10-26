@@ -1,30 +1,24 @@
 const urlParams = new URLSearchParams(window.location.search);
-        const deptKey = urlParams.get('dept') || 'traffic';
-        
-        // --- เปลี่ยนโค้ดตรงนี้ ---
-        const DEPT_MAP = {
-            'traffic': 'งานจราจรและความปลอดภัย',
-            'salaya': 'อาคารศาลายา กองกายภาพฯ',
-            'mlc': 'ศูนย์การเรียนรู้มหิดล',
-            'sitthakarn': 'มหิดลสิทธาคาร',
-            'siriwittaya': 'อาคารสิริวิทยา',   
-            'substation': 'สถานีไฟฟ้าย่อยมหิดล',
-            'wastewater': 'อาคารบำบัดน้ำเสีย'
-        };
-        // -----------------------
-        
-        const DEPT_NAME = DEPT_MAP[deptKey] || 'งานจราจรและความปลอดภัย';
+const deptKey = urlParams.get('dept') || 'traffic';
+
+const DEPT_MAP = {
+    'traffic': 'งานจราจรและความปลอดภัย',
+    'salaya': 'อาคารศาลายา กองกายภาพฯ',
+    'mlc': 'ศูนย์การเรียนรู้มหิดล',
+    'sitthakarn': 'มหิดลสิทธาคาร',
+    'siriwittaya': 'อาคารสิริวิทยา',   
+    'substation': 'สถานีไฟฟ้าย่อยมหิดล',
+    'wastewater': 'อาคารบำบัดน้ำเสีย'
+};
+
+const DEPT_NAME = DEPT_MAP[deptKey] || 'งานจราจรและความปลอดภัย';
 const CACHE_KEY = "gasData_" + DEPT_NAME;
 
-// ... (โค้ดส่วนอื่นๆ ตามเดิม) ...
-
 document.addEventListener("DOMContentLoaded", () => {
-    // แสดงชื่อหน่วยงานบน Navbar
     const titleDisplay = document.getElementById('dept-title-display');
     if (titleDisplay) {
         titleDisplay.innerHTML = DEPT_NAME; 
     }
-
     loadExtinguishers();
     setupForm();
 });
@@ -151,7 +145,7 @@ function renderList(data, container, countBadge) {
     data.forEach(ext => {
         const assetCode = ext['หมายเลขครุภัณฑ์'] || ext['เลขที่ถัง'];
         let borderClass = "border-start border-4"; 
-        let cardStyle = "background-color: #ffffff; border-left-color: #002454 !important;"; 
+        let cardStyle = "background-color: #ffffff; border-left-color: #2b4c65 !important;"; 
         let statusBadge = "";
 
         if (inspectedLog[assetCode]) {
@@ -172,9 +166,6 @@ function renderList(data, container, countBadge) {
         let img1Src = (assetCode && assetCode !== '-') ? `images/${assetCode}_1.jpg` : `images/default.jpg`;
         let img2Src = (assetCode && assetCode !== '-') ? `images/${assetCode}_2.jpg` : `images/default.jpg`;
 
-        // ==========================================
-        // ปรับแก้: รูปภาพขนาด 80x80px พอดีกับข้อความและการ์ด
-        // ==========================================
         let carouselId = "slide-" + (assetCode || Math.random().toString(36).substr(2, 5));
         let imageBlockHTML = `
           <div id="${carouselId}" class="carousel slide me-2 flex-shrink-0" data-bs-ride="carousel" data-bs-interval="2500" 
@@ -190,9 +181,6 @@ function renderList(data, container, countBadge) {
           </div>
         `;
 
-        // ==========================================
-        // ปรับแก้: ลดขนาดตัวอักษรเป็น 11px และย่อขนาดปุ่มให้พอดี
-        // ==========================================
         container.innerHTML += `
             <div class="card mb-2 shadow-sm border-0 ${borderClass} cursor-pointer" 
                  style="${cardStyle}"
@@ -215,13 +203,13 @@ function renderList(data, container, countBadge) {
                             </div>
                         </div>
                         
-                        <div class="text-end d-flex justify-content-end gap-1.5 mt-auto pt-1">
-                            <button class="btn btn-sm btn-warning rounded-pill px-2.5 py-1" style="color: #000; font-size: 11px; font-weight: normal; line-height: 1.1;"
+                        <!-- ปรับแก้ปุ่มสีเหลืองและปุ่มสีเทาตามภาพตัวอย่าง -->
+                        <div class="text-end d-flex justify-content-end gap-2 mt-auto pt-1">
+                            <button class="btn btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm" style="color: #333; font-size: 11px; background-color: #ffca28; border: none;"
                                 onclick="event.stopPropagation(); window.location.href='refill_form.html?dept=${deptKey}&assetCode=${assetCode}&extId=${ext['เลขที่ถัง'] || ''}';">
                                 เติมน้ำยา
                             </button>
-
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" style="font-size: 11px; font-weight: normal; color: #000; border-color: #ced4da; line-height: 1.1;"
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" style="font-size: 11px; color: #555; background-color: #f8f9fa;"
                                     onclick="event.stopPropagation(); showHistoryModal('${assetCode}')">
                                 ประวัติการตรวจ
                             </button>
@@ -248,12 +236,11 @@ function setupForm() {
     const form = document.getElementById('inspection-form');
     if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> กำลังบันทึกข้อมูล...`;
+        submitBtn.disabled = true; // ป้องกันการกดปุ่มซ้ำ
 
         const assetCode = document.getElementById('extinguisherId').value;
         
@@ -295,33 +282,42 @@ function setupForm() {
             department: DEPT_NAME
         };
 
-        try {
-            await fetch(CONFIG.GAS_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+        // 1. สั่งส่งข้อมูลไป Google Sheets เบื้องหลังแบบไม่ต้องรอ (ไม่มี await)
+        fetch(CONFIG.GAS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(err => console.error("Send error:", err));
+
+        // 2. อัปเดตสถานะการ์ดให้เป็น "ตรวจแล้ว" ในเครื่องทันที
+        let inspectedLog = JSON.parse(localStorage.getItem('inspectedLog_' + DEPT_NAME) || '{}');
+        inspectedLog[assetCode] = {
+            timestamp: new Date().getTime(),
+            status: isAllPass ? 'pass' : 'fail'
+        };
+        localStorage.setItem('inspectedLog_' + DEPT_NAME, JSON.stringify(inspectedLog));
+        sessionStorage.removeItem(CACHE_KEY);
+
+        // 3. แสดง Popup SweetAlert2 แจ้งเตือนกลางจอ
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกเรียบร้อย',
+                text: 'ข้อมูลถูกบันทึกลงระบบแล้ว',
+                showConfirmButton: false,
+                timer: 1500 // แสดงค้าง 1.5 วินาทีแล้วเปลี่ยนหน้าอัตโนมัติ
+            }).then(() => {
+                submitBtn.disabled = false;
+                showSection('page-list');
+                loadExtinguishers(); 
             });
-
-            let inspectedLog = JSON.parse(localStorage.getItem('inspectedLog_' + DEPT_NAME) || '{}');
-            inspectedLog[assetCode] = {
-                timestamp: new Date().getTime(),
-                status: isAllPass ? 'pass' : 'fail'
-            };
-            localStorage.setItem('inspectedLog_' + DEPT_NAME, JSON.stringify(inspectedLog));
-
-            sessionStorage.removeItem(CACHE_KEY);
-
+        } else {
+            // สำรองไว้กรณีไม่ได้ติดโค้ด SweetAlert2
             alert('บันทึกการตรวจเรียบร้อยแล้ว');
+            submitBtn.disabled = false;
             showSection('page-list');
             loadExtinguishers(); 
-
-        } catch (err) {
-            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-            console.error(err);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `บันทึกข้อมูลการตรวจ`;
         }
     });
 }
